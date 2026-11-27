@@ -1,6 +1,6 @@
-# SSCOM TOOL V1.21
+# SSCOM TOOL V1.25
 
-基于 **Python 3.10+、Tkinter/ttk 和 pyserial** 的 Windows 串口调试工具。窗口标题为 `SSCOM TOOL V1.21`。本版改为选择语言后直接切换，并修复扩展指令行发送按钮快速连点时后续点击被双击事件吞掉的问题。上方是尽量占满可用空间的接收区，底部为整合串口参数的发送工作区，右侧扩展栏可随时展开或隐藏。
+基于 **Python 3.10+、Tkinter/ttk 和 pyserial** 的 Windows 串口调试工具。窗口标题为 `SSCOM TOOL V1.24`。本版在更新失败提示下方增加作者邮箱，并将扩展栏的四个行操作按钮移入「指令内容」表头，释放原独立工具栏的高度。上方是尽量占满可用空间的接收区，底部为整合串口参数的发送工作区，右侧扩展栏可随时展开或隐藏。
 
 参考已有 Python 工程的后台线程、队列和 PyInstaller 打包方式，界面与业务代码独立实现；运行时不依赖参考工程。工程不使用 C#、WinForms 或 Qt。
 
@@ -15,10 +15,12 @@
 - RX / TX 字节计数与清零。
 - 主要按钮、下拉框、复选框及编辑对话框控件悬停后显示用途说明，延时由 `tooltip.py` 的 `delay` 设置；离开或点击后隐藏，禁用控件也可查看说明。提示框跟随控件所在显示器定位，在屏幕边缘调整位置，不再按主屏坐标限制。
 - 顶部「语言」菜单选择六种界面语言，直接生效，不弹出切换确认框；滚轮不切换语言。
+- 「帮助 → 版本更新」立即显示「正在获取最新版本……」与进度动画；居中窗口按当前语言显示，并在原窗口内呈现最新版本、无更新、错误及下载结果。启动约5秒后、持续运行时每小时自动检查。
 - 命名指令表的新建、切换、保存、导入、导出及整表删除；默认表受保护。指令支持新增、双击编辑、删除、排序及单条发送。
 - 首次启动扩展默认隐藏；发送区标题行按钮或 F8 快速切换，隐藏后保留指令、勾选状态和选择位置。退出时记录窗口尺寸、最大化状态及扩展栏宽度和显示状态。
 - 勾选指令顺序发送或循环发送；每条指令独立设置 HEX、结束符和发送后间隔。
 - 定时发送与停止共用一个按钮，运行中再次点击或按 Esc 停止。
+- 扩展底部「发送」在顺序、循环或定时发送期间变成红字「停止」；与发送工作区的停止按钮控制同一任务，结束后恢复「发送」。
 - 点击主「发送」按钮、按 Ctrl+Enter 或退出 APP 时保存指定参数；配置与预设支持手动 JSON 导入 / 导出。
 - 演示回环：原样返回发送字节，完全不访问硬件。
 
@@ -62,7 +64,7 @@ py -3 -m venv .venv
 
 「扩展」抬头同行为可输入下拉框，文字始终居中：单击输入区修改当前表名，按Enter或移开焦点确认；点击下拉箭头选择其他表后立即切换。名称须非空且不与其他表重复，改名后点击「保存」写入磁盘。各表未保存的编辑保留在当前会话中。
 
-扩展表格搜索和两行表格操作说明已移除，相关用途保留在悬停提示中。抬头下一行先显示粗体「指令表操作：」，然后为「新建、保存、导入、导出、删除」；五个按钮继续缩小且等宽，中文常规布局约48像素，面板变窄时提示文字与按钮分行，并按可用空间换行，保证全部可见。下方指令框顶部为加粗的短按钮「+、-、↑、↓」，整组居中，随面板宽度调整，空间不足时同样换行；分别用于新增、删除、上移和下移。已移除「编辑」「复制」按钮，双击指令内容仍可打开完整编辑框。工具栏边框为3像素，指令内容框边框仍为1像素；各行紧密相接，只保留1像素分割线。
+扩展表格搜索和两行表格操作说明已移除，相关用途保留在悬停提示中。抬头下一行先显示粗体「指令表操作：」，然后为「新建、保存、导入、导出、删除」；五个按钮继续缩小且等宽，中文常规布局约48像素，面板变窄时提示文字与按钮分行，并按可用空间换行，保证全部可见。指令框表头按「+、-、指令内容、↑、↓」排列，整组相对指令内容列居中；四个加粗短按钮分别用于新增、删除、上移和下移，悬停提示及自动发送期间的禁用状态保留。原独立行操作工具栏已移除，释放的高度用于显示指令；表头与正文使用同一个视口，快速拖动时同步布局。最小扩展宽度会同时考虑表头操作、当前语言和已显示的参数列，保证标题及按钮不重叠。已移除「编辑」「复制」按钮，双击指令内容仍可打开完整编辑框。指令内容框边框仍为1像素；各行紧密相接，只保留1像素分割线。
 
 「删除」针对当前整张指令表，确认框会显示表名。确认后原子保存更新后的表库、删除该表的全部行并切回默认表；取消不改变数据，写入失败则保留原表及尚未修正的输入。默认表的删除按钮禁用，自动发送运行中也会禁用整表删除。独立导出的JSON文件不受影响。
 
@@ -140,13 +142,13 @@ py -3 -m venv .venv
 
 程序目录尚无 `profile.json` 时，会将旧版 `%LOCALAPPDATA%\SSCOM_TOOL` 中有效的配置及指令表复制过来；原文件保留，已有便携配置不被覆盖。点击主「发送」按钮 / `Ctrl+Enter` 和退出 APP 均触发保存。发送时先验证发送内容和参数，保存失败时本次指令不发送；退出时保存当前参数。`Ctrl+L` 清空日志。
 
-自动保存包含 `version`、`connection`、`encoding`、`send_text`、`send_hex`、`send_ending`、`send_interval_ms`、`receive_hex`、`timestamps`、`show_tx`、`receive_font_size`、`receive_font_family`、`receive_font_style`、`receive_font_color`、`receive_encoding`、`ui_language`，以及窗口布局字段 `window_width`、`window_height`、`window_maximized`、`preset_panel_width`、`presets_visible`。`connection` 只包含 `port`、`baudrate`、`bytesize`、`parity`、`stopbits`、`dtr`、`rts`。配置格式的 `version` 保持为 `1`，与程序版本 V1.21 分开。`send_text` 保存输入区当前内容，因此「以HEX发送」勾选时保存的是转换后的 HEX 字符串，恢复时不会重复转换。
+自动保存包含 `version`、`connection`、`encoding`、`send_text`、`send_hex`、`send_ending`、`send_interval_ms`、`receive_hex`、`timestamps`、`show_tx`、`receive_font_size`、`receive_font_family`、`receive_font_style`、`receive_font_color`、`receive_encoding`、`ui_language`，以及窗口布局字段 `window_width`、`window_height`、`window_maximized`、`preset_panel_width`、`presets_visible`。`connection` 只包含 `port`、`baudrate`、`bytesize`、`parity`、`stopbits`、`dtr`、`rts`。配置格式的 `version` 保持为 `1`，与程序版本 V1.24 分开。`send_text` 保存输入区当前内容，因此「以HEX发送」勾选时保存的是转换后的 HEX 字符串，恢复时不会重复转换。
 
 退出时保存窗口大小和扩展栏实际宽度，下次启动恢复；最大化窗口同时记录普通窗口尺寸。扩展隐藏时保留最近宽度和隐藏状态，再次展开恢复该宽度；若屏幕或窗口变小，按可用空间限制扩展宽度，保留接收区。
 
 自V1.18使用实时分隔条：鼠标按住拖动时，持续应用最新位置，扩展栏右边界固定；高频移动按约16毫秒合并，不积压旧位置，也不等待全部控件几何校验后才允许下一帧。Esc恢复本次拖动前宽度。接收区至少320像素；V1.20按底部「全选、循环、格式、结尾、间隔ms、发送」六项控件同排所需宽度，以及表格固定列、输入列和边距所需宽度，确定扩展栏最小宽度。拖动、恢复旧配置、窗口缩小或切换语言时均应用这一限制。「结尾」列至少64像素，并按当前文字实际宽度增加，完整显示CRLF等值。
 
-V1.19不再使用Treeview作为指令表的底层控件。表头、正文、勾选框、发送按钮和分隔线全部由一块Canvas绘制，数据模型管理选择和滚动，仅绘制可见行。画布是扩展栏内视口的子控件，靠右固定，由父视口裁剪；已移除工作区覆盖层和动态窗口区域。这样不会出现底层Treeview与画布同时显示指令，也不会让表格覆盖接收区。单击指令或间隔时复用一个真实Entry，双击指令打开完整编辑框。500条数据不对应500组控件，无效间隔草稿在滚动、隐藏列及调整宽度时保留。
+V1.19不再使用Treeview作为指令表的底层控件。表头文字、正文、勾选框、发送按钮和分隔线由一块Canvas绘制，数据模型管理选择和滚动，仅绘制可见行。V1.24在画布表头保留四个固定操作按钮，不为每条指令创建控件。画布是扩展栏内视口的子控件，靠右固定，由父视口裁剪；已移除工作区覆盖层和动态窗口区域。这样不会出现底层Treeview与画布同时显示指令，也不会让表格覆盖接收区。单击指令或间隔时复用一个真实Entry，双击指令打开完整编辑框。500条数据不对应500组控件，无效间隔草稿在滚动、隐藏列及调整宽度时保留。
 
 Windows下每次应用最新拖动位置时，将工作区与已显示子控件的更新合在同一个同步回调中，完成布局、可见行绘制后恢复呈现；不会跨回调禁用重绘，也不等到松开鼠标。子控件改变位置或尺寸时禁用旧客户区像素的自动复制，更新后重绘暴露区域，避免复制旧布局留下重影。实时效果仍取决于屏幕刷新率和系统负载。实现参考 [WM_SETREDRAW](https://learn.microsoft.com/en-us/windows/win32/gdi/wm-setredraw) 与 [SetWindowPos](https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-setwindowpos)。
 
@@ -178,10 +180,14 @@ Windows下每次应用最新拖动位置时，将工作区与已显示子控件�
 
 ## 源码结构
 
+更新发布使用独立的公开仓库 [Bird-eegs/SSCOM_TOOL_Releases](https://github.com/Bird-eegs/SSCOM_TOOL_Releases/releases)，与源代码仓库分开。
+
 ```text
 main.py                         程序入口
 src/sscom_tool/
   app.py                        主界面、事件轮询、定时 / 顺序发送
+  updates.py                    GitHub版本查询、版本比较、附件校验与提醒偏好保存
+  update_ui.py                  更新后台线程、启动/定时检查与非模态更新提醒窗口
   theme.py                      ttk 配色与样式
   preset_editor.py              指令编辑窗口
   preset_cells.py               Canvas可见行绘制、点击处理及复用输入框
@@ -219,7 +225,7 @@ requirements.txt                唯一运行时外部依赖：pyserial
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\build.ps1
 ```
 
-文件名从 `src/sscom_tool/__init__.py` 中的 `APP_TITLE` 自动读取，本版产物为 `dist\SSCOM_TOOL_V1.21.exe`，可双击运行。后续版本随标题版本自动变化。首次在其他开发电脑打包前，需自行准备 PyInstaller：
+文件名从 `src/sscom_tool/__init__.py` 中的 `APP_TITLE` 自动读取，本版产物为 `dist\SSCOM_TOOL_V1.24.exe`，可双击运行。后续版本随标题版本自动变化。首次在其他开发电脑打包前，需自行准备 PyInstaller：
 
 ```powershell
 .\.venv\Scripts\python.exe -m pip install pyinstaller
@@ -228,10 +234,47 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\build.ps1
 最终EXE由用户执行打包。旧EXE仍在运行时Windows不允许覆盖同名文件；也可用以下命令指定其他名称，`verify.ps1`和`tests\exe_smoke.ps1`支持同名参数：
 
 ```powershell
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\build.ps1 -ExecutableName SSCOM_TOOL_V1.21
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\build.ps1 -ExecutableName SSCOM_TOOL_V1.24
 ```
 
 只核对将要生成的名称、不执行打包：`build_exe.bat -NameOnly`。
+
+## 版本更新提醒与发布
+
+APP 使用公开的 GitHub Releases API 查询 `Bird-eegs/SSCOM_TOOL_Releases` 的最新正式版，默认启动约5秒后检查一次，运行期间每小时检查一次。请求由独立后台线程执行，界面线程处理结果；重复手动点击共用正在执行的请求。无需登录 GitHub，也不在 EXE 中存放访问令牌。实现参考 [GitHub Releases API](https://docs.github.com/en/rest/releases/releases#get-the-latest-release) 和 [API 请求建议](https://docs.github.com/en/rest/using-the-rest-api/best-practices-for-using-the-rest-api)。
+
+「帮助 → 版本更新」点击后立即打开同一个版本更新窗口，显示「正在获取最新版本……」与不确定进度动画。窗口相对 APP 居中，移动主窗口时跟随居中，并限制在所在显示器工作区内。界面字符按当前选中的语言显示；检查仍由后台线程执行，串口收发保持运行。
+
+加载完成后原窗口切换为新版信息、无新版、网络错误或限流结果，停止进度动画；「重新获取」仍复用这个窗口。更新检查失败时，提示下方空一行显示「也可以联系作者： tansensli@outlook.com」，随界面语言切换；重新获取时清除上次失败提示。浏览器打开失败、提醒设置保存失败及下载入口已打开的说明也在同一窗口内显示，不另外弹出版本更新相关的信息框。关闭加载窗口不会关闭串口，也不会在本次请求返回时再次自动打开；自动检查无新版或失败时仍保持安静。
+
+发现更高版本时，显示当前版本、最新版本、发布说明与三个选项：
+
+- **前往下载**：由系统浏览器打开对应的官方 EXE 附件；附件尚未上传时打开该发布页面。下载后用户关闭 APP，再自行更换 EXE。不会自动停止串口、覆盖程序或运行下载文件。
+- **稍后提醒**：该版本至少等待1小时后再提醒，重启仍保留等待时间。
+- **忽略此版本**：以后不自动提醒该版本；后续更高版本仍会提醒。手动检查可再次查看被忽略或暂缓的版本。
+
+提醒窗口不会阻塞串口收发；有指令编辑等模态窗口或主窗口最小化时，待恢复后再显示提醒。无新版或断网时，自动检查保持安静，后续周期继续检查；手动检查会显示当前结果或错误。网络请求有超时和响应大小限制，遵守限流等待时间；ETag 用于复用未变化的响应。草稿、预发布版及低于当前版本的发布不会触发更新提示。
+
+提醒选择独立保存到 EXE 同目录的 `profile.updates.json`（使用 `--config` 时为对应配置旁的 `.updates.json`），不改变串口参数及指令表格式。运行 `--no-update-check` 可关闭自动检查，手动检查仍可用；离线测试使用此开关或 `Workbench(..., check_updates=False)`。
+
+每次发布的操作：
+
+1. 同步修改 `__version__` 与 `APP_TITLE`。本版为 `1.0.24` 和 `SSCOM TOOL V1.24`。
+2. 用户运行 `build_exe.bat`，生成 `dist\SSCOM_TOOL_V1.24.exe`。
+3. 在更新仓库创建 **正式 Release**，Tag 为 **`v1.0.24`**，填写更新说明并上传 **`SSCOM_TOOL_V1.24.exe`**；设为最新发布，不勾选预发布。仅提交源代码或创建 Tag 不能替代这一步。
+4. 后续例如 V1.25 使用 Tag `v1.0.25`、附件 `SSCOM_TOOL_V1.25.exe`。客户端按整数版本段比较，不按小数或字符串比较。
+
+**已分发的 V1.21 没有检查更新功能，需用户先手动安装一次 V1.22 或更新版本。之后在 APP 运行且网络可访问 GitHub 时，才会收到后续版本提醒。APP 关闭时不会检查。** 本地版本高于最新发布版本时不会提示降级。
+
+更新模块的离线模拟界面检查（不访问真实网络或下载 EXE）：
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\test_updates.ps1
+```
+
+涵盖慢网下串口回环与界面响应、请求合并、六种语言、浏览器下载入口、忽略/稍后提醒持久化、模态窗口避让、限流、启动/周期检查及请求中退出。结果位于 `artifacts/update-gui-smoke.json`；核心测试另包含版本比较、元数据校验、缓存和偏好读写。
+
+`test_updates.ps1 -Capture` 另存加载、新版和错误窗口预览。扩展停止按钮的演示回环检查位于 `tests/sequence_stop_gui_smoke.py`，已加入 `scripts/test.ps1 -Gui`：验证顺序发送自然完成、扩展停止循环、扩展停止由发送工作区启动的定时任务、发送工作区停止扩展任务，以及六种语言中的红字状态和停止后不再安排发送。正在写入的一次数据仍可能完成。
 
 ## 验证与范围
 
@@ -314,7 +357,7 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\test_live_resi
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\test_live_resize.ps1 -Record
 ```
 
-结果文件名随版本变化，本版为 `artifacts/native-live-resize-v121.json`，录屏为 `artifacts/native-live-resize-v121.mp4`。最终EXE由用户打包；这些检查运行源码，不执行打包。
+结果文件名随版本变化，本版为 `artifacts/native-live-resize-v123.json`，录屏为 `artifacts/native-live-resize-v123.mp4`。最终EXE由用户打包；这些检查运行源码，不执行打包。
 
 V1.19增加独立进程的重影检查，先主动放入重复字符验证检测有效，再在200次快速左右拖动中采样桌面像素，检查指令重复、指令越出表头边界、搜索输入文字重复，以及松手前表头位置是否持续改变：
 
@@ -324,10 +367,10 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\test_ghosting.
 
 结果保存在 `artifacts/ghosting-gui-smoke.json`，逐帧记录为 `artifacts/ghosting-frames.json`。该检查使用测试专用颜色辨认字符，不改变正式界面；检测到异常时保存诊断截图。文字可见性检查也包含逐帧布局期间的屏幕像素，不因Windows临时移除控件的可见标志而跳过采样。采样不能覆盖每一显示帧，需结合实际鼠标拖动录像判断效果。
 
-核心测试现为69项，包含便携路径、旧数据迁入、缓存位置及对话框默认目录。打包后还可从不同工作目录验证EXE默认保存位置（使用隔离测试目录，不读取用户旧配置）：
+核心测试现为78项，包含便携路径、旧数据迁入、缓存位置及对话框默认目录。打包后还可从不同工作目录验证EXE默认保存位置（使用隔离测试目录，不读取用户旧配置）：
 
 ```powershell
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tests\exe_smoke.ps1 -ExecutableName SSCOM_TOOL_V1.21 -Portable
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tests\exe_smoke.ps1 -ExecutableName SSCOM_TOOL_V1.24 -Portable
 ```
 
 ### 真实硬件收发验证
